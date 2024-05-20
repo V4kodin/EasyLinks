@@ -5,8 +5,6 @@ import (
 	"EasyLinks/server/pkg/service"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/jackc/pgerrcode"
-	"github.com/lib/pq"
 	"io"
 	"net/http"
 )
@@ -39,18 +37,12 @@ func (h *Handler) createShortLink(c *gin.Context) {
 	//userID := GetUserID(c)
 
 	shortURL, err := h.service.AddURL(string(body))
-
-	if err, ok := err.(*pq.Error); ok {
-		if err.Code == pgerrcode.UniqueViolation {
-			c.String(http.StatusConflict, fmt.Sprintf("%s/%s", shortURL))
-			return
-		}
-	}
-
-	if err != nil {
+	switch {
+	// if err nil send shortURL to user
+	case err == nil:
+		c.Get(shortURL.ID)
+		c.String(http.StatusCreated, fmt.Sprintf("%s/%s", shortURL))
+	case err != nil:
 		errors.ErrorResponse(c, http.StatusInternalServerError, err.Error())
-		return
 	}
-
-	c.String(http.StatusCreated, fmt.Sprintf("%s/%s", shortURL))
 }

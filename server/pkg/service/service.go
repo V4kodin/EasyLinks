@@ -1,8 +1,10 @@
 package service
 
 import (
+	"EasyLinks/server/pkg/errors"
 	"EasyLinks/server/storage"
 	"EasyLinks/server/utils"
+	"log"
 	"time"
 )
 
@@ -28,8 +30,16 @@ func (s *Service) AddURL(url string) (*ShortURL, error) {
 		URL:      url,
 		ExpireAt: getExpirationTime(1),
 	}
-	s.Collection.InsertOne((*storage.ShortURL)(shortURL))
-	return shortURL, nil
+	message, err := s.Collection.InsertOne((*storage.ShortURL)(shortURL))
+	switch {
+	case err == 0:
+		log.Println(message)
+	case err == 6: // If the key already exists
+		return nil, errors.ErrorMap[6]
+	default:
+		return nil, errors.ErrorMap[2]
+	}
+	return nil, nil
 }
 
 func getExpirationTime(ttlDays int) *time.Time {

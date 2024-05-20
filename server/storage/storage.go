@@ -22,6 +22,5 @@ func (coll *Coll) InsertOne(shortURL *ShortURL) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println("Inserted document with _id:", result.InsertedID)
-
+	return "", 2
 }
