@@ -49,3 +49,7 @@ func getExpirationTime(ttlDays int) *time.Time {
 	t := time.Now().Add(time.Hour * 24 * time.Duration(ttlDays))
 	return &t
 }
+
+func (s *Service) GetURL(id string) (*ShortURL, error) {
+	return (*ShortURL)(s.Collection.FindOne(id)), nil
+}
