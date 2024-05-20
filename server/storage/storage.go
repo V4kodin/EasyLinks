@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"log"
 	"time"
@@ -32,12 +33,25 @@ func (coll *Coll) InsertOne(shortURL *ShortURL) (string, int) {
 	return "", 2
 }
 
-func (coll *Coll) FindOne(id string) *ShortURL {
+func (coll *Coll) FindOne(id string) (*ShortURL, int) {
 	var shortURL ShortURL
-	err := coll.c.FindOne(context.TODO(), id).Decode(&shortURL)
-	if err != nil {
+	filter := bson.D{{"_id", id}}
+	//err := coll.c.FindOne(context.TODO(), id).Decode(&shortURL)
+	err := coll.c.FindOne(context.TODO(), filter).Decode(&shortURL)
+
+	switch {
+	case err == nil:
+		return &shortURL, 0
+	case err == mongo.ErrNilValue:
+		return nil, 5
+	case err == mongo.MarshalError{Err: err}:
+		return nil, 3
+	case err == mongo.ErrNoDocuments:
+		return nil, 5
+	default:
 		log.Fatal(err)
+		return nil, 2
 	}
-	return &shortURL
+	return &shortURL, 2
 
 }

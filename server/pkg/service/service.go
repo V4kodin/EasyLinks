@@ -39,7 +39,7 @@ func (s *Service) AddURL(url string) (*ShortURL, error) {
 	default:
 		return nil, errors.ErrorMap[2]
 	}
-	return nil, nil
+	return nil, errors.ErrorMap[2]
 }
 
 func getExpirationTime(ttlDays int) *time.Time {
@@ -51,5 +51,14 @@ func getExpirationTime(ttlDays int) *time.Time {
 }
 
 func (s *Service) GetURL(id string) (*ShortURL, error) {
-	return (*ShortURL)(s.Collection.FindOne(id)), nil
+
+	url, err := s.Collection.FindOne(id)
+	switch {
+	case err == 0:
+		return (*ShortURL)(url), nil
+	case err == 5:
+		return nil, errors.ErrorMap[5]
+	default:
+		return nil, errors.ErrorMap[2]
+	}
 }

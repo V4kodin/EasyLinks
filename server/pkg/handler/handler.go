@@ -23,7 +23,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	api := router.Group("/api")
 	{
 		api.POST("/createlink", h.createShortLink)
-		//links.POST("/getlink", h.createLink)
+		api.GET("/getlink", h.getShortLink)
 	}
 	return router
 }
@@ -42,7 +42,25 @@ func (h *Handler) createShortLink(c *gin.Context) {
 	case err == nil:
 		c.Get(shortURL.ID)
 		c.String(http.StatusCreated, fmt.Sprintf("%s/%s", shortURL))
-	case err != nil:
+	default:
 		errors.ErrorResponse(c, http.StatusInternalServerError, err.Error())
 	}
+}
+
+func (h *Handler) getShortLink(c *gin.Context) {
+	body, err := io.ReadAll(c.Request.Body)
+	if err != nil {
+		errors.ErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	fullURL, err := h.service.GetURL(string(body))
+	switch {
+	case err == nil:
+		c.Get(fullURL.URL)
+		c.JSON(http.StatusOK, fullURL)
+	default:
+		errors.ErrorResponse(c, http.StatusInternalServerError, err.Error())
+
+	}
+
 }
