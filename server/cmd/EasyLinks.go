@@ -9,8 +9,7 @@ import (
 )
 
 const (
-	port          = ":8080"
-	serverAddress = "http://localhost"
+	port = ":8080"
 )
 
 func main() {
@@ -18,11 +17,11 @@ func main() {
 	if err != nil {
 
 	}
-	service := service.NewService(db)
-	handlers := handler.NewHandler(service)
+	Service := service.NewService(db)
+	Handlers := handler.NewHandler(Service)
 	s := new(server.Server)
 
-	if err := s.Start(port, handlers.InitRoutes()); err != nil {
+	if err := s.Start(port, Handlers.InitRoutes()); err != nil {
 		log.Fatalf("Error occured while running http server: %s", err.Error())
 	} else {
 		println("Server is running on port 8080")

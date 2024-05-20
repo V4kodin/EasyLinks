@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"log"
@@ -20,13 +21,14 @@ type URLWorker interface {
 }
 
 func (coll *Coll) InsertOne(shortURL *ShortURL) (string, int) {
-	_, err := coll.c.InsertOne(context.TODO(), shortURL)
+	result, err := coll.c.InsertOne(context.TODO(), shortURL)
+
 	if err == nil {
-		return ("Inserted document with _id:" + shortURL.ID), 0
+		return result.InsertedID.(string), 0
 	} else if mongo.IsDuplicateKeyError(err) {
-		return "Alread in db ", 6
+		return "", 6
 	} else if mongo.IsTimeout(err) {
-		return "Timout errr ", 14
+		return "", 14
 	} else {
 		log.Fatal(err)
 	}
@@ -36,17 +38,16 @@ func (coll *Coll) InsertOne(shortURL *ShortURL) (string, int) {
 func (coll *Coll) FindOne(id string) (*ShortURL, int) {
 	var shortURL ShortURL
 	filter := bson.D{{"_id", id}}
-	//err := coll.c.FindOne(context.TODO(), id).Decode(&shortURL)
 	err := coll.c.FindOne(context.TODO(), filter).Decode(&shortURL)
 
 	switch {
 	case err == nil:
 		return &shortURL, 0
-	case err == mongo.ErrNilValue:
+	case errors.Is(err, mongo.ErrNilValue):
 		return nil, 5
-	case err == mongo.MarshalError{Err: err}:
+	case errors.Is(err, mongo.MarshalError{Err: err}):
 		return nil, 3
-	case err == mongo.ErrNoDocuments:
+	case errors.Is(err, mongo.ErrNoDocuments):
 		return nil, 5
 	default:
 		log.Fatal(err)

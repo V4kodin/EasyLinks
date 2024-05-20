@@ -25,21 +25,21 @@ func NewService(coll *storage.Coll) *Service {
 }
 
 func (s *Service) AddURL(url string) (*ShortURL, error) {
-	shortURL := &ShortURL{
+	ShortURL := &ShortURL{
 		ID:       utils.GenerateString(url),
 		URL:      url,
 		ExpireAt: getExpirationTime(1),
 	}
-	message, err := s.Collection.InsertOne((*storage.ShortURL)(shortURL))
+	_, err := s.Collection.InsertOne((*storage.ShortURL)(ShortURL))
 	switch {
 	case err == 0:
-		log.Println(message)
+		log.Println(ShortURL)
+		return ShortURL, nil
 	case err == 6: // If the key already exists
 		return nil, errors.ErrorMap[6]
 	default:
 		return nil, errors.ErrorMap[2]
 	}
-	return nil, errors.ErrorMap[2]
 }
 
 func getExpirationTime(ttlDays int) *time.Time {
