@@ -31,7 +31,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 func (h *Handler) createShortLink(c *gin.Context) {
 	body, err := io.ReadAll(c.Request.Body)
 	if err != nil {
-		errors.ErrorResponse(c, http.StatusBadRequest, err.Error())
+		errors.ErrorResponse(c, http.StatusBadRequest, err.Error(), errors.ErrorMapString[err])
 		return
 	}
 	//userID := GetUserID(c)
@@ -43,14 +43,14 @@ func (h *Handler) createShortLink(c *gin.Context) {
 		c.Get(shortURL.ID)
 		c.String(http.StatusCreated, fmt.Sprintf("%s/%s", shortURL))
 	default:
-		errors.ErrorResponse(c, http.StatusInternalServerError, err.Error())
+		errors.ErrorResponse(c, http.StatusInternalServerError, err.Error(), errors.ErrorMapString[err])
 	}
 }
 
 func (h *Handler) getShortLink(c *gin.Context) {
 	body, err := io.ReadAll(c.Request.Body)
 	if err != nil {
-		errors.ErrorResponse(c, http.StatusBadRequest, err.Error())
+		errors.ErrorResponse(c, http.StatusBadRequest, err.Error(), errors.ErrorMapString[err])
 		return
 	}
 	fullURL, err := h.service.GetURL(string(body))
@@ -59,8 +59,7 @@ func (h *Handler) getShortLink(c *gin.Context) {
 		c.Get(fullURL.URL)
 		c.JSON(http.StatusOK, fullURL)
 	default:
-		errors.ErrorResponse(c, http.StatusInternalServerError, err.Error())
-
+		errors.ErrorResponse(c, http.StatusInternalServerError, err.Error(), errors.ErrorMapString[err])
 	}
 
 }

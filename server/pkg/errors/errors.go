@@ -7,7 +7,8 @@ import (
 )
 
 type Error struct {
-	Message string
+	StatusCode int
+	Message    string
 }
 
 var ErrorMap = map[int]error{
@@ -29,13 +30,34 @@ var ErrorMap = map[int]error{
 	15: errors.New("DATA_LOSS"),
 	16: errors.New("UNAUTHENTICATED"),
 }
+var ErrorMapString = map[error]int{
+	ErrorMap[0]:  0,
+	ErrorMap[1]:  1,
+	ErrorMap[2]:  2,
+	ErrorMap[3]:  3,
+	ErrorMap[4]:  4,
+	ErrorMap[5]:  5,
+	ErrorMap[6]:  6,
+	ErrorMap[7]:  7,
+	ErrorMap[8]:  8,
+	ErrorMap[9]:  9,
+	ErrorMap[10]: 10,
+	ErrorMap[11]: 11,
+	ErrorMap[12]: 12,
+	ErrorMap[13]: 13,
+	ErrorMap[14]: 14,
+	ErrorMap[15]: 15,
+	ErrorMap[16]: 16,
+}
 
 //	ErrBadRequest = errors.New("bad request")
 //	ErrNotFound   = errors.New("not found")
 //	ErrCollision  = errors.New("failed to create short link due to collision")
 //)
 
-func ErrorResponse(c *gin.Context, statusCode int, message string) {
-	log.Println(message)
-	c.JSON(statusCode, Error{Message: message})
+func ErrorResponse(c *gin.Context, statusCode int, message string, inernalStatusCode int) {
+	log.Println(message + " " + ErrorMap[inernalStatusCode].Error())
+	c.JSON(statusCode, Error{
+		StatusCode: inernalStatusCode,
+		Message:    message})
 }
