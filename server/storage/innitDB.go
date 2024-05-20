@@ -1,11 +1,11 @@
 package storage
 
 import (
-	"EasyLinks/server"
 	"context"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
+	"os"
 )
 
 type Coll struct {
@@ -14,8 +14,12 @@ type Coll struct {
 
 func InitDB() (*Coll, error) {
 
-	clientOptions := options.Client().ApplyURI(server.BdAddress)
-
+	bdHost := os.Getenv("MONGO_ADDRES")
+	bdPort := os.Getenv("MONGO_PORT")
+	bdUser := os.Getenv("MONGO_USERNAME")
+	bdPass := os.Getenv("MONGO_PASSWORD")
+	conn := "mongodb://" + bdUser + ":" + bdPass + "@" + bdHost + ":" + bdPort
+	clientOptions := options.Client().ApplyURI(conn)
 	connection, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {
 		log.Fatal(err)

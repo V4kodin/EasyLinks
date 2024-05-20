@@ -7,8 +7,7 @@ toolchain go1.22.3
 require (
 	github.com/gin-gonic/gin v1.10.0
 	github.com/itchyny/base58-go v0.2.2
-	github.com/jackc/pgerrcode v0.0.0-20240316143900-6e2875d9b438
-	github.com/lib/pq v1.10.9
+	github.com/joho/godotenv v1.5.1
 	go.mongodb.org/mongo-driver v1.15.0
 )
 

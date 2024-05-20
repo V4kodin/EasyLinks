@@ -5,10 +5,17 @@ import (
 	"EasyLinks/server/pkg/handler"
 	"EasyLinks/server/pkg/service"
 	"EasyLinks/server/storage"
+	"github.com/joho/godotenv"
 	"log"
+	"os"
 )
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalf("err loading: %v", err)
+	}
+
 	db, err := storage.InitDB()
 	if err != nil {
 		log.Fatalf("Error occured while connecting to database: %s", err.Error())
@@ -18,7 +25,7 @@ func main() {
 	Handlers := handler.NewHandler(Service)
 	s := new(server.Server)
 
-	port := server.Port
+	port := ":" + os.Getenv("SERVER_PORT")
 	if err := s.Start(port, Handlers.InitRoutes()); err != nil {
 		log.Fatalf("Error occured while running http server: %s", err.Error())
 	} else {
