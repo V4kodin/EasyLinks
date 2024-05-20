@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"EasyLinks/server"
 	"context"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -12,8 +13,8 @@ type Coll struct {
 }
 
 func InitDB() (*Coll, error) {
-	port := "8081"
-	clientOptions := options.Client().ApplyURI("mongodb://localhost:" + port)
+
+	clientOptions := options.Client().ApplyURI(server.BdAddress)
 
 	connection, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {

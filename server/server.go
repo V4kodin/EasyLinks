@@ -9,6 +9,11 @@ type Server struct {
 	httpServer *http.Server
 }
 
+const (
+	Port      = ":8080"
+	BdAddress = "mongodb://localhost:8081"
+)
+
 func (s *Server) Start(port string, handler http.Handler) error {
 	s.httpServer = &http.Server{
 		Addr:           port,
