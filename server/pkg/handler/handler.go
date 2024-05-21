@@ -3,7 +3,6 @@ package handler
 import (
 	"EasyLinks/server/pkg/errors"
 	"EasyLinks/server/pkg/service"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
@@ -40,8 +39,7 @@ func (h *Handler) createShortLink(c *gin.Context) {
 	switch {
 	// if err nil send shortURL to user
 	case err == nil:
-		c.Get(shortURL.ID)
-		c.String(http.StatusCreated, fmt.Sprintf("%s/%s", shortURL))
+		c.JSON(http.StatusOK, shortURL)
 	default:
 		errors.ErrorResponse(c, http.StatusInternalServerError, err.Error(), errors.ErrorMapString[err])
 	}
@@ -56,7 +54,6 @@ func (h *Handler) getShortLink(c *gin.Context) {
 	fullURL, err := h.service.GetURL(string(body))
 	switch {
 	case err == nil:
-		c.Get(fullURL.URL)
 		c.JSON(http.StatusOK, fullURL)
 	default:
 		errors.ErrorResponse(c, http.StatusInternalServerError, err.Error(), errors.ErrorMapString[err])
