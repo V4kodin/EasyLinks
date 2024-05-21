@@ -1,5 +1,5 @@
 # Start from the latest golang base image
-FROM --platform=linux/amd64 golang:latest as builder
+FROM golang:1.22-alpine as builder
 
 # Set the Current Working Directory inside the container
 WORKDIR /app
@@ -16,15 +16,15 @@ COPY ./server ./server
 # Build the Go app
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -C ./server/cmd/ -o main .
 
-ENTRYPOINT ls -l ./server/cmd/main
-
 ####### Start a new stage from scratch #######
+FROM alpine:latest
+
+# Copy the Pre-built binary file from the previous stage also copy the .env file
+COPY --from=builder /app/server/cmd/main ./
+COPY --from=builder /app/.env ./
 
 # Expose port 8080 to the outside
 EXPOSE 8080
 
-#RUN chmod 777 example.txt
-
-#ENTRYPOINT ls -l ./
-
-ENTRYPOINT ["./server/cmd/main"]
+# Command to run the executable
+ENTRYPOINT ["./main"]
