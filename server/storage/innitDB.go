@@ -14,7 +14,7 @@ type Coll struct {
 
 func InitDB() (*Coll, error) {
 
-	bdHost := os.Getenv("MONGO_ADDRES")
+	bdHost := os.Getenv("MONGO_ADDRESS")
 	bdPort := os.Getenv("MONGO_PORT")
 	bdUser := os.Getenv("MONGO_USERNAME")
 	bdPass := os.Getenv("MONGO_PASSWORD")
