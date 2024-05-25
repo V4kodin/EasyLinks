@@ -16,8 +16,8 @@ type URLWorker interface {
 
 func (coll *Coll) InsertOne(ShortURL *models.ShortURL) *models.ShortURL {
 	result, err := coll.c.InsertOne(context.TODO(), ShortURL)
-	ShortURL.ID = result.InsertedID.(string)
 	if err == nil {
+		ShortURL.ID = result.InsertedID.(string)
 		ShortURL.Error = 0
 		return ShortURL
 	} else if mongo.IsDuplicateKeyError(err) {
@@ -25,6 +25,10 @@ func (coll *Coll) InsertOne(ShortURL *models.ShortURL) *models.ShortURL {
 		return ShortURL
 	} else if mongo.IsTimeout(err) {
 		ShortURL.Error = 14
+		return ShortURL
+	} else if mongo.IsNetworkError(err) {
+		ShortURL.Error = 14
+		log.Fatal(err)
 		return ShortURL
 	} else {
 		ShortURL.Error = 2
