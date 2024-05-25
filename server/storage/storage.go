@@ -1,58 +1,63 @@
 package storage
 
 import (
+	"EasyLinks/server/pkg/models"
 	"context"
 	"errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"log"
-	"time"
 )
-
-type ShortURL struct {
-	ID       string     `bson:"_id"`
-	URL      string     `bson:"url"`
-	ExpireAt *time.Time `bson:"expireAt,omitempty"`
-}
 
 type URLWorker interface {
 	AddValue(key, value, userID string) error
 	Ping() (bool, error)
 }
 
-func (coll *Coll) InsertOne(shortURL *ShortURL) (string, int) {
-	result, err := coll.c.InsertOne(context.TODO(), shortURL)
-
+func (coll *Coll) InsertOne(ShortURL *models.ShortURL) *models.ShortURL {
+	result, err := coll.c.InsertOne(context.TODO(), ShortURL)
 	if err == nil {
-		return result.InsertedID.(string), 0
+		ShortURL.ID = result.InsertedID.(string)
+		ShortURL.Error = 0
+		return ShortURL
 	} else if mongo.IsDuplicateKeyError(err) {
-		return "", 6
+		ShortURL.Error = 6
+		return ShortURL
 	} else if mongo.IsTimeout(err) {
-		return "", 14
-	} else {
+		ShortURL.Error = 14
+		return ShortURL
+	} else if mongo.IsNetworkError(err) {
+		ShortURL.Error = 14
 		log.Fatal(err)
+		return ShortURL
+	} else {
+		ShortURL.Error = 2
+		log.Fatal(err)
+		return ShortURL
 	}
-	return "", 2
 }
 
-func (coll *Coll) FindOne(id string) (*ShortURL, int) {
-	var shortURL ShortURL
-	filter := bson.D{{"_id", id}}
-	err := coll.c.FindOne(context.TODO(), filter).Decode(&shortURL)
+func (coll *Coll) FindOne(ShortURL *models.ShortURL) *models.ShortURL {
+
+	filter := bson.D{{"_id", ShortURL.ID}}
+	err := coll.c.FindOne(context.TODO(), filter).Decode(&ShortURL)
 
 	switch {
 	case err == nil:
-		return &shortURL, 0
+		ShortURL.Error = 0
+		return ShortURL
 	case errors.Is(err, mongo.ErrNilValue):
-		return nil, 5
+		ShortURL.Error = 5
+		return ShortURL
 	case errors.Is(err, mongo.MarshalError{Err: err}):
-		return nil, 3
+		ShortURL.Error = 3
+		return ShortURL
 	case errors.Is(err, mongo.ErrNoDocuments):
-		return nil, 5
+		ShortURL.Error = 5
+		return ShortURL
 	default:
+		ShortURL.Error = 2
 		log.Fatal(err)
-		return nil, 2
+		return ShortURL
 	}
-	return &shortURL, 2
-
 }

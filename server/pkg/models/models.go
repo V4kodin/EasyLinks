@@ -5,6 +5,7 @@ import (
 )
 
 type ShortURL struct {
+	Error    int
 	ID       string     `bson:"_id"`
 	URL      string     `bson:"url"`
 	ExpireAt *time.Time `bson:"expireAt,omitempty"`
